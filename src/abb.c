@@ -24,6 +24,47 @@ nodo_abb_t *insertar_nodo(abb_t *arbol, nodo_abb_t *nodo_a_insertar,
 	return nodo_actual;
 }
 
+nodo_abb_t *buscar_nodo_por_elemento(abb_t *arbol, nodo_abb_t *nodo,
+				     void *elemento)
+{
+	if (!nodo)
+		return NULL;
+
+	if (!arbol->comparador(nodo->elemento, elemento))
+		return nodo;
+
+	if (arbol->comparador(nodo->elemento, elemento) < COMPARACION)
+		nodo = buscar_nodo_por_elemento(arbol,
+							  nodo->izquierda,
+						 	  elemento);
+	else
+		nodo = buscar_nodo_por_elemento(arbol, nodo->derecha,
+						 	  elemento);
+
+	return nodo;
+}
+
+nodo_abb_t *buscar_nodo_anterior_a_quitar(abb_t *arbol, nodo_abb_t *nodo,
+				     	  void *elemento)
+{
+	if (!nodo)
+		return NULL;
+
+	if (!arbol->comparador(nodo->derecha->elemento, elemento) ||
+	    !arbol->comparador(nodo->izquierda->elemento, elemento))
+		return nodo;
+
+	if (arbol->comparador(nodo->elemento, elemento) < COMPARACION)
+		nodo = buscar_nodo_anterior_a_quitar(arbol,
+							  nodo->izquierda,
+						 	  elemento);
+	else
+		nodo = buscar_nodo_anterior_a_quitar(arbol, nodo->derecha,
+						 	  elemento);
+
+	return nodo;
+}
+
 abb_t *abb_crear(abb_comparador comparador)
 {
 	return calloc(1, sizeof(abb_t));
@@ -46,12 +87,27 @@ abb_t *abb_insertar(abb_t *arbol, void *elemento)
 
 void *abb_quitar(abb_t *arbol, void *elemento)
 {
-	return elemento;
+	if (!arbol)
+		return;
+
+	nodo_abb_t *nodo_anterior_a_quitar = NULL;
+	nodo_anterior_a_quitar = buscar_nodo_anterior_a_quitar(arbol,
+							       arbol->nodo_raiz,
+						    	       elemento);
+	if (!nodo_anterior_a_quitar)
+		return NULL;
+
+	return NULL;//elemento_a_quitar;
 }
 
 void *abb_buscar(abb_t *arbol, void *elemento)
 {
-	return elemento;
+	if (!arbol)
+		return NULL;
+
+	nodo_abb_t *nodo = buscar_nodo_por_elemento(arbol, arbol->nodo_raiz,
+						    elemento);
+	return nodo->elemento;
 }
 
 bool abb_vacio(abb_t *arbol)
