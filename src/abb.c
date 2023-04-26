@@ -3,6 +3,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#define COMPARACION 0
+
+nodo_abb_t *insertar_nodo(abb_t *arbol, nodo_abb_t *nodo_a_insertar,
+			      nodo_abb_t *nodo_actual)
+{
+	if (!nodo_actual)
+		return nodo_a_insertar;
+
+	if (arbol->comparador(nodo_a_insertar->elemento, nodo_actual->elemento)
+	    <= COMPARACION)
+		nodo_actual->izquierda = insertar_nodo(arbol,
+						       nodo_a_insertar,
+						       nodo_actual->izquierda);
+	else
+		nodo_actual->derecha = insertar_nodo(arbol,
+						     nodo_a_insertar,
+						     nodo_actual->izquierda);
+
+	return nodo_actual;
+}
+
 abb_t *abb_crear(abb_comparador comparador)
 {
 	return calloc(1, sizeof(abb_t));
@@ -10,6 +31,16 @@ abb_t *abb_crear(abb_comparador comparador)
 
 abb_t *abb_insertar(abb_t *arbol, void *elemento)
 {
+	if (!arbol)
+		return NULL;
+
+	nodo_abb_t *nodo = calloc(1, sizeof(nodo_abb_t));
+	if (!nodo)
+		return NULL;
+
+	nodo->elemento = elemento;
+	arbol->nodo_raiz = insertar_nodo(arbol, nodo, arbol->nodo_raiz);
+
 	return arbol;
 }
 
