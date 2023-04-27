@@ -65,6 +65,24 @@ nodo_abb_t *buscar_nodo_anterior_a_quitar(abb_t *arbol, nodo_abb_t *nodo,
 	return nodo;
 }
 
+abb_t *destruir_nodos(abb_t *arbol, nodo_abb_t *nodo,
+		      void (*destructor)(void *))
+{
+	if (nodo->izquierda != NULL)
+		arbol = destruir_nodos(arbol, nodo->izquierda, destructor);
+
+	if (nodo->derecha != NULL)
+		arbol = destruir_nodos(arbol, nodo->derecha, destructor);
+
+	if (destructor != NULL)
+		destructor(nodo->elemento);
+
+	free(nodo);
+	arbol->tamanio--;
+	
+	return arbol;
+}
+
 abb_t *abb_crear(abb_comparador comparador)
 {
 	return calloc(1, sizeof(abb_t));
@@ -81,6 +99,7 @@ abb_t *abb_insertar(abb_t *arbol, void *elemento)
 
 	nodo->elemento = elemento;
 	arbol->nodo_raiz = insertar_nodo(arbol, nodo, arbol->nodo_raiz);
+	arbol->tamanio++;
 
 	return arbol;
 }
@@ -138,6 +157,9 @@ void abb_destruir_todo(abb_t *arbol, void (*destructor)(void *))
 {
 	if (!arbol)
 		return;
+
+	arbol = destruir_nodos(arbol, arbol->nodo_raiz, destructor);
+	free(arbol);
 }
 
 size_t abb_con_cada_elemento(abb_t *arbol, abb_recorrido recorrido,
