@@ -2,8 +2,16 @@
 #include "abb_estructura_privada.h"
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define COMPARACION 0
+
+struct vector {
+	void **vector;
+	size_t tope;
+	size_t posicion;
+};
+
 
 nodo_abb_t *insertar_nodo(abb_t *arbol, nodo_abb_t *nodo_a_insertar,
 			      nodo_abb_t *nodo_actual)
@@ -30,39 +38,47 @@ nodo_abb_t *buscar_nodo_por_elemento(abb_t *arbol, nodo_abb_t *nodo,
 	if (!nodo)
 		return NULL;
 
-	if (!arbol->comparador(nodo->elemento, elemento))
-		return nodo;
-
 	if (arbol->comparador(nodo->elemento, elemento) < COMPARACION)
 		nodo = buscar_nodo_por_elemento(arbol,
 							  nodo->izquierda,
 						 	  elemento);
-	else
+	else if (arbol->comparador(nodo->elemento, elemento) > COMPARACION)
 		nodo = buscar_nodo_por_elemento(arbol, nodo->derecha,
 						 	  elemento);
 
 	return nodo;
 }
 
-nodo_abb_t *buscar_nodo_anterior_a_quitar(abb_t *arbol, nodo_abb_t *nodo,
-				     	  void *elemento)
+nodo_abb_t *extraer_predecesor_inorden(nodo_abb_t *predecesor_inorden,
+				       void **elemento)
 {
-	if (!nodo)
-		return NULL;
+	if (!predecesor_inorden->derecha) {
+		*elemento = predecesor_inorden->elemento;
+		nodo_abb_t *izq_de_predecesor_inorden = predecesor_inorden->izquierda;
+		free(predecesor_inorden);
+		return izq_de_predecesor_inorden;
+	}
 
-	if (!arbol->comparador(nodo->derecha->elemento, elemento) ||
-	    !arbol->comparador(nodo->izquierda->elemento, elemento))
+	predecesor_inorden->derecha = 
+		extraer_predecesor_inorden(predecesor_inorden->derecha,
+	 				     elemento);
+	return predecesor_inorden;
+}
+
+nodo_abb_t *abb_quitar_nodo(nodo_abb_t *nodo)
+{
+	if (!nodo->derecha && !nodo->izquierda) {
+		void *elemento_derecho = NULL;
+		nodo->izquierda = extraer_predecesor_inorden(nodo->izquierda,
+							     &elemento_derecho);
+		nodo->elemento = elemento_derecho;
 		return nodo;
-
-	if (arbol->comparador(nodo->elemento, elemento) < COMPARACION)
-		nodo = buscar_nodo_anterior_a_quitar(arbol,
-							  nodo->izquierda,
-						 	  elemento);
-	else
-		nodo = buscar_nodo_anterior_a_quitar(arbol, nodo->derecha,
-						 	  elemento);
-
-	return nodo;
+	} else if (!nodo->derecha) {
+		free(nodo);
+		return nodo->izquierda;
+	}
+	free(nodo);
+	return nodo->derecha;
 }
 
 abb_t *destruir_nodos(abb_t *arbol, nodo_abb_t *nodo,
@@ -83,9 +99,71 @@ abb_t *destruir_nodos(abb_t *arbol, nodo_abb_t *nodo,
 	return arbol;
 }
 
+bool abb_recorrer_inorden(nodo_abb_t *nodo, bool (*funcion)(void *, void *),
+			   void *aux, size_t *contador)
+{
+	if (!nodo)
+		return true;
+
+	if (!abb_recorrer_inorden(nodo->izquierda, funcion, aux, contador))
+		return false;
+
+	(*contador)++;
+	if (!funcion(nodo->elemento, aux))
+		return false;
+
+	return abb_recorrer_inorden(nodo->derecha, funcion, aux, contador);
+}
+
+bool abb_recorrer_preorden(nodo_abb_t *nodo, bool (*funcion)(void *, void *),
+			   void *aux, size_t *contador)
+{
+	if (!nodo)
+		return true;
+
+	(*contador)++;
+	if (!funcion(nodo->elemento, aux))
+		return false;
+
+	if (!abb_recorrer_preorden(nodo->izquierda, funcion, aux, contador))
+		return false;
+
+	return abb_recorrer_preorden(nodo->derecha, funcion, aux, contador);
+}
+
+bool abb_recorrer_postorden(nodo_abb_t *nodo, bool (*funcion)(void *, void *),
+			   void *aux, size_t *contador)
+{
+	if (!nodo)
+		return true;
+
+	if (!abb_recorrer_postorden(nodo->izquierda, funcion, aux, contador))
+		return false;
+
+	if (!abb_recorrer_postorden(nodo->derecha, funcion, aux, contador))
+		return false;
+
+	(*contador)++;
+
+	return funcion(nodo->elemento, aux);
+}
+
+bool rellenar_vector(void * elemento, void *aux)
+{
+	return true;
+}
+
 abb_t *abb_crear(abb_comparador comparador)
 {
-	return calloc(1, sizeof(abb_t));
+	if (!comparador)
+		return NULL;
+
+	abb_t *arbol = calloc(1, sizeof(abb_t));
+	if (!arbol)
+		return NULL;
+
+	arbol->comparador = comparador;
+	return arbol;
 }
 
 abb_t *abb_insertar(abb_t *arbol, void *elemento)
@@ -106,22 +184,24 @@ abb_t *abb_insertar(abb_t *arbol, void *elemento)
 
 void *abb_quitar(abb_t *arbol, void *elemento)
 {
-	if (!arbol)
-		return;
-
-	nodo_abb_t *nodo_anterior_a_quitar = NULL;
-	nodo_anterior_a_quitar = buscar_nodo_anterior_a_quitar(arbol,
-							       arbol->nodo_raiz,
-						    	       elemento);
-	if (!nodo_anterior_a_quitar)
+	if (!arbol || abb_vacio(arbol))
 		return NULL;
 
-	return NULL;//elemento_a_quitar;
+	nodo_abb_t *nodo_a_quitar = buscar_nodo_por_elemento(arbol,
+							     arbol->nodo_raiz,
+							     elemento);
+	if (!nodo_a_quitar)
+		return NULL;
+
+	void *elemento_extraido = nodo_a_quitar->elemento;
+	nodo_a_quitar = abb_quitar_nodo(nodo_a_quitar);
+
+	return elemento_extraido;
 }
 
 void *abb_buscar(abb_t *arbol, void *elemento)
 {
-	if (!arbol)
+	if (!arbol || abb_vacio(arbol))
 		return NULL;
 
 	nodo_abb_t *nodo = buscar_nodo_por_elemento(arbol, arbol->nodo_raiz,
@@ -165,8 +245,17 @@ void abb_destruir_todo(abb_t *arbol, void (*destructor)(void *))
 size_t abb_con_cada_elemento(abb_t *arbol, abb_recorrido recorrido,
 			     bool (*funcion)(void *, void *), void *aux)
 {
-	if (!arbol || !funcion)
+	if (!arbol || !funcion || abb_vacio(arbol))
 		return 0;
+
+	size_t *contador = 0;
+
+	if (recorrido == INORDEN)
+		abb_recorrer_inorden(arbol->nodo_raiz, funcion, aux, contador);
+	else if (recorrido == PREORDEN)
+		abb_recorrer_preorden(arbol->nodo_raiz, funcion, aux, contador);
+	else
+		abb_recorrer_postorden(arbol->nodo_raiz, funcion, aux, contador);
 
 	return 0;
 }
@@ -174,5 +263,13 @@ size_t abb_con_cada_elemento(abb_t *arbol, abb_recorrido recorrido,
 size_t abb_recorrer(abb_t *arbol, abb_recorrido recorrido, void **array,
 		    size_t tamanio_array)
 {
-	return 0;
+	if (!arbol || !array || abb_vacio(arbol) || !tamanio_array)
+		return 0;
+
+	struct vector vector;
+	vector.vector = array;
+	vector.tope = tamanio_array;
+	vector.posicion = 0;
+
+	return abb_con_cada_elemento(arbol, recorrido, rellenar_vector, vector.vector);
 }
