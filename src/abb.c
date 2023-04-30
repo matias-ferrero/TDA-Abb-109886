@@ -27,7 +27,7 @@ nodo_abb_t *insertar_nodo(abb_t *arbol, nodo_abb_t *nodo_a_insertar,
 	else
 		nodo_actual->derecha = insertar_nodo(arbol,
 						     nodo_a_insertar,
-						     nodo_actual->izquierda);
+						     nodo_actual->derecha);
 
 	return nodo_actual;
 }
@@ -81,14 +81,13 @@ nodo_abb_t *abb_quitar_nodo(nodo_abb_t *nodo)
 	return nodo->derecha;
 }
 
-abb_t *destruir_nodos(abb_t *arbol, nodo_abb_t *nodo,
-		      void (*destructor)(void *))
+void destruir_nodos(abb_t *arbol, nodo_abb_t *nodo, void (*destructor)(void *))
 {
-	if (nodo->izquierda != NULL)
-		arbol = destruir_nodos(arbol, nodo->izquierda, destructor);
+	if (!nodo)
+		return;
 
-	if (nodo->derecha != NULL)
-		arbol = destruir_nodos(arbol, nodo->derecha, destructor);
+	destruir_nodos(arbol, nodo->izquierda, destructor);
+	destruir_nodos(arbol, nodo->derecha, destructor);
 
 	if (destructor != NULL)
 		destructor(nodo->elemento);
@@ -96,7 +95,7 @@ abb_t *destruir_nodos(abb_t *arbol, nodo_abb_t *nodo,
 	free(nodo);
 	arbol->tamanio--;
 	
-	return arbol;
+	return;
 }
 
 bool abb_recorrer_inorden(nodo_abb_t *nodo, bool (*funcion)(void *, void *),
@@ -206,6 +205,9 @@ void *abb_buscar(abb_t *arbol, void *elemento)
 
 	nodo_abb_t *nodo = buscar_nodo_por_elemento(arbol, arbol->nodo_raiz,
 						    elemento);
+	if (!nodo)
+		return NULL;
+
 	return nodo->elemento;
 }
 
@@ -227,9 +229,6 @@ size_t abb_tamanio(abb_t *arbol)
 
 void abb_destruir(abb_t *arbol)
 {
-	if (!arbol)
-		return;
-
 	abb_destruir_todo(arbol, NULL);
 }
 
@@ -238,7 +237,7 @@ void abb_destruir_todo(abb_t *arbol, void (*destructor)(void *))
 	if (!arbol)
 		return;
 
-	arbol = destruir_nodos(arbol, arbol->nodo_raiz, destructor);
+	destruir_nodos(arbol, arbol->nodo_raiz, destructor);
 	free(arbol);
 }
 
