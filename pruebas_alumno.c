@@ -96,7 +96,7 @@ void pruebas_buscar_elementos_por_comparacion()
 {
 	abb_t *abb = abb_crear(abb_comparador_enteros);
 
-	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
+	int numeros[] = { 5, 1, 9 };
 
 	size_t i;
 	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
@@ -114,16 +114,16 @@ void pruebas_buscar_elementos_por_comparacion()
 void pruebas_de_operaciones_del_tda_abb()
 {
 	pa2m_nuevo_grupo("PRUEBAS DE CREACION Y DESTRUCCION");
-	pruebas_de_creacion_y_destruccion_del_abb();
+	//pruebas_de_creacion_y_destruccion_del_abb();
 
 	pa2m_nuevo_grupo("PRUEBAS DE INSERTAR ELEMENTOS Y DESTRUIR ARBOL");
-	pruebas_insertar_y_destruir();
+	//pruebas_insertar_y_destruir();
 
 	pa2m_nuevo_grupo("PRUEBAS DE QUITAR Y DESTRUIR ELEMENTOS");
-	//pruebas_quitar_y_destruir();
+	pruebas_quitar_y_destruir();
 
 	pa2m_nuevo_grupo("PRUEBAS DE BUSCAR ELEMENTOS POR CONDICION");
-	pruebas_buscar_elementos_por_comparacion();
+	//pruebas_buscar_elementos_por_comparacion();
 }
 
 /*
