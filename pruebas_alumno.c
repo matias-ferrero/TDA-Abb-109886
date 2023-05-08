@@ -76,18 +76,57 @@ void pruebas_quitar_y_destruir()
 {
 	abb_t *abb = abb_crear(abb_comparador_enteros);
 
-	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
+	int numeros[] = { 5, 3, 1, 7, 4, 7, 6 };
 
 	size_t i;
 	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
 		abb_insertar(abb, &numeros[i]);
+
+	pa2m_afirmar(abb_quitar(abb, &numeros[1]) == &numeros[1], 
+		     "Se puede quitar un elemento del arbol con dos hijos");
+
+	i--;
+	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == (i + 1),
+		     "Tamanio");
+
+
+	pa2m_afirmar(abb_quitar(abb, &numeros[2]) == &numeros[2], 
+		     "Se puede quitar un elemento con un hijo derecho");
+
+	i--;
+	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == (i + 1),
+		     "Tamanio");
+
+
+	pa2m_afirmar(abb_quitar(abb, &numeros[3]) == &numeros[3], 
+		     "Se puede quitar un elemento con un hijo izquierdo");
+
+	i--;
+	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == (i + 1),
+		     "Tamanio");
+
+	pa2m_afirmar(abb_quitar(abb, &numeros[4]) == &numeros[4], 
+		     "Se puede quitar un elemento sin hijos");
+
+	i--;
+	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == (i + 1),
+		     "Tamanio");
+
+
+	pa2m_afirmar(abb_quitar(abb, &numeros[5]) == &numeros[5], 
+		     "Se pueden quitar elementos repetidos de un arbol");
+
+	i--;
+	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == (i + 1),
+		     "Tamanio");
+
 
 	pa2m_afirmar(abb_quitar(abb, &numeros[0]) == &numeros[0], 
 		     "Se puede quitar el elemento en la raiz del arbol");
 
 	i--;
 	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == (i + 1),
-		     "Se quita 1 elemento, y quedan 7 elementos en el arbol");
+		     "Tamanio");
 
 	abb_destruir(abb);
 }
