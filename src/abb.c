@@ -6,10 +6,10 @@
 
 #define PUNTO_COMPARACION 0
 
-struct vector {
-	void **vector;
+struct vector_recorrer_abb {
+	void **vec;
 	size_t tope;
-	size_t posicion;
+	size_t cantidad;
 };
 
 abb_t *abb_crear(abb_comparador comparador)
@@ -244,33 +244,38 @@ size_t abb_con_cada_elemento(abb_t *arbol, abb_recorrido recorrido,
 	if (!arbol || !funcion || abb_vacio(arbol))
 		return 0;
 
-	size_t *contador = 0;
+	size_t contador = 0;
 
 	if (recorrido == INORDEN)
-		abb_recorrer_inorden(arbol->nodo_raiz, funcion, aux, contador);
+		abb_recorrer_inorden(arbol->nodo_raiz, funcion, aux, &contador);
 	else if (recorrido == PREORDEN)
-		abb_recorrer_preorden(arbol->nodo_raiz, funcion, aux, contador);
+		abb_recorrer_preorden(arbol->nodo_raiz, funcion, aux, &contador);
 	else
-		abb_recorrer_postorden(arbol->nodo_raiz, funcion, aux, contador);
+		abb_recorrer_postorden(arbol->nodo_raiz, funcion, aux, &contador);
 
-	return 0;
+	return contador;
 }
 
 bool rellenar_vector(void * elemento, void *aux)
 {
+	struct vector_recorrer_abb *vector = aux;
+	if (vector->cantidad >= vector->tope)
+		return false;
+
+	vector->vec[vector->cantidad] = elemento;
+	vector->cantidad++;
 	return true;
 }
 
 size_t abb_recorrer(abb_t *arbol, abb_recorrido recorrido, void **array,
 		    size_t tamanio_array)
 {
-	if (!arbol || !array || abb_vacio(arbol) || !tamanio_array)
+	if (!arbol || !array || !tamanio_array)
 		return 0;
 
-	struct vector vector;
-	vector.vector = array;
+	struct vector_recorrer_abb vector;
+	vector.vec = array;
 	vector.tope = tamanio_array;
-	vector.posicion = 0;
-
-	return abb_con_cada_elemento(arbol, recorrido, rellenar_vector, vector.vector);
+	vector.cantidad = 0;
+	return abb_con_cada_elemento(arbol, recorrido, rellenar_vector, &vector);
 }

@@ -106,6 +106,9 @@ void pruebas_quitar_y_destruir()
 {
 	abb_t *abb = abb_crear(abb_comparador_enteros);
 
+	pa2m_afirmar(!abb_quitar(abb, NULL),
+		     "No se pueden quitar elementos de una arbol vacio");
+
 	int numeros[] = { 5, 3, 1, 7, 4, 7, 6 };
 
 	for (size_t i = 0; i < sizeof(numeros) / sizeof(int); i++)
@@ -139,6 +142,9 @@ void pruebas_buscar_elementos_por_comparacion()
 {
 	abb_t *abb = abb_crear(abb_comparador_enteros);
 
+	pa2m_afirmar(!abb_buscar(abb, NULL),
+		     "No se pueden encontrar elementos en una arbol vacio");
+
 	int numeros[] = { 5, 3, 1, 7, 4, 7, 6 };
 	//int vec_buscar[] = { 5, 3, 1, 7, 4, 7, 6 };
 
@@ -158,7 +164,15 @@ void pruebas_buscar_elementos_por_comparacion()
 
 void pruebas_abb_iterador_interno()
 {
+	abb_t *abb = abb_crear(abb_comparador_enteros);
 
+	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
+
+	size_t i;
+	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
+		abb_insertar(abb, &numeros[i]);
+
+	abb_destruir(abb);
 }
 
 void pruebas_de_operaciones_del_tda_abb()
