@@ -84,6 +84,7 @@ nodo_abb_t *abb_quitar_nodo(abb_t *arbol, nodo_abb_t *nodo, void *elemento,
 		nodo_abb_t *izq = nodo->izquierda;
 		nodo_abb_t *der = nodo->derecha;
 		*elemento_extraido = nodo->elemento;
+		arbol->tamanio--;
 
 		if (nodo->derecha != NULL && nodo->izquierda != NULL) {
 			void *elemento_derecho = NULL;
@@ -115,7 +116,6 @@ void *abb_quitar(abb_t *arbol, void *elemento)
 	void *elemento_extraido = NULL;
 	arbol->nodo_raiz = abb_quitar_nodo(arbol, arbol->nodo_raiz, elemento,
 					   &elemento_extraido);
-	arbol->tamanio--;
 	return elemento_extraido;
 }
 
@@ -266,7 +266,7 @@ bool rellenar_vector(void *elemento, void *aux)
 
 	vector->vec[vector->cantidad] = elemento;
 	vector->cantidad++;
-	return true;
+	return vector->cantidad < vector->tope;
 }
 
 size_t abb_recorrer(abb_t *arbol, abb_recorrido recorrido, void **array,
