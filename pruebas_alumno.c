@@ -193,9 +193,9 @@ void pruebas_abb_iterador_interno()
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se pueden leer los elementos de forma postorden");
 
-	printf("\nElimino algunos elementos y vuelvo a iterar el arbol\n");
+
+	printf("\nElimino un elemento y vuelvo a iterar el arbol\n");
 	abb_quitar(abb, &numeros[1]);
-	abb_quitar(abb, &numeros[2]);
 
 
 	recorridos = abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL);
@@ -213,6 +213,10 @@ void pruebas_abb_iterador_interno()
 	printf("\n");
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se pueden leer los elementos de forma postorden");
+
+
+	printf("\nElimino otro elemento y vuelvo a iterar el arbol\n");
+	abb_quitar(abb, &numeros[2]);
 
 	abb_destruir(abb);
 }
