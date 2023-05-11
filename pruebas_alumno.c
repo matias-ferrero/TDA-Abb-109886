@@ -42,11 +42,12 @@ int comparar_cosas(void *c1, void *c2)
 	return cosa1->clave - cosa2->clave;
 }
 
-bool mostrar_elemento(void *elemento, void *extra)
+bool leer_elemento(void *elemento, void *extra)
 {
 	extra = extra; //para que no se queje el compilador, gracias -Werror -Wall
+	int *numero1 = elemento;
 	if (elemento)
-		printf("%i ", ((cosa *)elemento)->clave);
+		printf("%i ", *numero1);
 	return true;
 }
 
@@ -166,11 +167,52 @@ void pruebas_abb_iterador_interno()
 {
 	abb_t *abb = abb_crear(abb_comparador_enteros);
 
+	pa2m_afirmar(!abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL),
+		     "No se pueden leer elementos en un arbol vacio");
+
 	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
 
 	size_t i;
 	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
 		abb_insertar(abb, &numeros[i]);
+
+	size_t recorridos = abb_con_cada_elemento(abb, INORDEN, leer_elemento,
+						  NULL);
+	printf("\n");
+	pa2m_afirmar(recorridos == abb_tamanio(abb),
+		     "Se pueden leer los elementos guardados ascendentemente");
+
+	recorridos = abb_con_cada_elemento(abb, PREORDEN, leer_elemento, NULL);
+	printf("\n");
+	pa2m_afirmar(recorridos == abb_tamanio(abb),
+		     "Se puede leer una copia del arbol");
+
+	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento,
+					   NULL);
+	printf("\n");
+	pa2m_afirmar(recorridos == abb_tamanio(abb),
+		     "Se pueden leer los elementos de forma postorden");
+
+	printf("\nElimino algunos elementos y vuelvo a iterar el arbol\n");
+	abb_quitar(abb, &numeros[1]);
+	abb_quitar(abb, &numeros[2]);
+
+
+	recorridos = abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL);
+	printf("\n");
+	pa2m_afirmar(recorridos == abb_tamanio(abb),
+		     "Se pueden leer los elementos guardados ascendentemente");
+
+	recorridos = abb_con_cada_elemento(abb, PREORDEN, leer_elemento, NULL);
+	printf("\n");
+	pa2m_afirmar(recorridos == abb_tamanio(abb),
+		     "Se puede leer una copia del arbol");
+
+	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento,
+					   NULL);
+	printf("\n");
+	pa2m_afirmar(recorridos == abb_tamanio(abb),
+		     "Se pueden leer los elementos de forma postorden");
 
 	abb_destruir(abb);
 }
@@ -251,7 +293,7 @@ void pruebas_del_tda_abb_con_parametros_nulos()
 	pa2m_afirmar(!abb_tamanio(NULL),
 		     "Un arbol que no existe, tiene 0 elementos");
 
-	pa2m_afirmar(!abb_con_cada_elemento(NULL, INORDEN, mostrar_elemento, NULL),
+	pa2m_afirmar(!abb_con_cada_elemento(NULL, INORDEN, leer_elemento, NULL),
 		     "Iterar un arbol que no existe da error");
 
 	pa2m_afirmar(!abb_con_cada_elemento(abb, INORDEN, NULL, NULL),
