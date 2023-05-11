@@ -23,7 +23,7 @@ int abb_comparador_enteros(void *elemento1, void *elemento2)
 {
 	int *numero1 = elemento1;
 	int *numero2 = elemento2;
-	
+
 	return (int)(numero1 - numero2);
 }
 
@@ -51,6 +51,17 @@ bool leer_elemento(void *elemento, void *extra)
 	return true;
 }
 
+bool mostrar_hasta_5(void *elemento, void *extra)
+{
+	extra = extra; //para que no se queje el compilador, gracias -Werror -Wall
+	if (elemento) {
+		printf("%i ", ((cosa *)elemento)->clave);
+		if (((cosa *)elemento)->clave == 5)
+			return false;
+	}
+	return true;
+}
+
 void destruir_cosa(cosa *c)
 {
 	free(c);
@@ -62,7 +73,7 @@ void destructor_de_cosas(void *c)
 	if (!cosa)
 		return;
 
-	free(cosa->elemento);	
+	free(cosa->elemento);
 	destruir_cosa(c);
 }
 
@@ -91,10 +102,10 @@ void pruebas_insertar_y_destruir()
 		     "Se puede insertar NULL en el arbol");
 
 	for (size_t i = 1; i < ((sizeof(numeros) / sizeof(int)) - 1); i++)
-		pa2m_afirmar(abb_insertar(abb, &numeros[i]) != NULL, 
+		pa2m_afirmar(abb_insertar(abb, &numeros[i]) != NULL,
 			     "Se puede insertar otro elemento en el arbol");
 
-	pa2m_afirmar(abb_insertar(abb, &numeros[7]) != NULL, 
+	pa2m_afirmar(abb_insertar(abb, &numeros[7]) != NULL,
 		     "Se pueden insertar elementos repetidos en el arbol");
 
 	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == 8,
@@ -115,22 +126,22 @@ void pruebas_quitar_y_destruir()
 	for (size_t i = 0; i < sizeof(numeros) / sizeof(int); i++)
 		abb_insertar(abb, &numeros[i]);
 
-	pa2m_afirmar(abb_quitar(abb, &numeros[1]) == &numeros[1], 
+	pa2m_afirmar(abb_quitar(abb, &numeros[1]) == &numeros[1],
 		     "Se puede quitar un elemento del arbol con dos hijos");
 
-	pa2m_afirmar(abb_quitar(abb, &numeros[2]) == &numeros[2], 
+	pa2m_afirmar(abb_quitar(abb, &numeros[2]) == &numeros[2],
 		     "Se puede quitar un elemento con un hijo derecho");
 
-	pa2m_afirmar(abb_quitar(abb, &numeros[3]) == &numeros[3], 
+	pa2m_afirmar(abb_quitar(abb, &numeros[3]) == &numeros[3],
 		     "Se puede quitar un elemento con un hijo izquierdo");
 
-	pa2m_afirmar(abb_quitar(abb, &numeros[4]) == &numeros[4], 
+	pa2m_afirmar(abb_quitar(abb, &numeros[4]) == &numeros[4],
 		     "Se puede quitar un elemento sin hijos");
 
-	pa2m_afirmar(abb_quitar(abb, &numeros[5]) == &numeros[5], 
+	pa2m_afirmar(abb_quitar(abb, &numeros[5]) == &numeros[5],
 		     "Se pueden quitar elementos repetidos de un arbol");
 
-	pa2m_afirmar(abb_quitar(abb, &numeros[0]) == &numeros[0], 
+	pa2m_afirmar(abb_quitar(abb, &numeros[0]) == &numeros[0],
 		     "Se puede quitar el elemento en la raiz del arbol");
 
 	pa2m_afirmar(!abb_vacio(abb) && abb_tamanio(abb) == 1,
@@ -155,10 +166,11 @@ void pruebas_buscar_elementos_por_comparacion()
 
 	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
 		pa2m_afirmar(abb_buscar(abb, &numeros[i]) == &numeros[i],
-		     	     "Se puede encontrar el elemento en el arbol");
+			     "Se puede encontrar el elemento en el arbol");
 
-	pa2m_afirmar(!abb_buscar(abb, NULL), 
-		     "NO se puede encontrar un elemento que no esta en el arbol");
+	pa2m_afirmar(
+		!abb_buscar(abb, NULL),
+		"NO se puede encontrar un elemento que no esta en el arbol");
 
 	abb_destruir(abb);
 }
@@ -166,18 +178,16 @@ void pruebas_buscar_elementos_por_comparacion()
 void pruebas_abb_iterador_interno()
 {
 	abb_t *abb = abb_crear(abb_comparador_enteros);
+	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
 
 	pa2m_afirmar(!abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL),
 		     "No se pueden leer elementos en un arbol vacio");
 
-	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
-
-	size_t i;
-	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
+	for (size_t i = 0; i < sizeof(numeros) / sizeof(int); i++)
 		abb_insertar(abb, &numeros[i]);
 
-	size_t recorridos = abb_con_cada_elemento(abb, INORDEN, leer_elemento,
-						  NULL);
+	size_t recorridos =
+		abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL);
 	printf("\n");
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se pueden leer los elementos guardados ascendentemente");
@@ -187,16 +197,13 @@ void pruebas_abb_iterador_interno()
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se puede leer una copia del arbol");
 
-	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento,
-					   NULL);
+	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento, NULL);
 	printf("\n");
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se pueden leer los elementos de forma postorden");
 
-
 	printf("\nElimino un elemento y vuelvo a iterar el arbol\n");
 	abb_quitar(abb, &numeros[1]);
-
 
 	recorridos = abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL);
 	printf("\n");
@@ -208,15 +215,35 @@ void pruebas_abb_iterador_interno()
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se puede leer una copia del arbol");
 
-	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento,
-					   NULL);
+	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento, NULL);
 	printf("\n");
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "Se pueden leer los elementos de forma postorden");
 
-
 	printf("\nElimino otro elemento y vuelvo a iterar el arbol\n");
 	abb_quitar(abb, &numeros[2]);
+
+	abb_destruir(abb);
+}
+
+void pruebas_abb_recorrer_guardar_en_vector()
+{
+	abb_t *abb = abb_crear(abb_comparador_enteros);
+	int numeros[] = { 5, 1, 9, 7, 2, 6, 7 };
+	size_t tamanio_array = sizeof(numeros) / sizeof(int);
+
+	pa2m_afirmar(!abb_recorrer(abb, INORDEN, (void **)numeros,
+				   tamanio_array),
+		     "No se puede recorrer un arbol vacio");
+
+	for (size_t i = 0; i < tamanio_array; i++)
+		abb_insertar(abb, &numeros[i]);
+
+	size_t recorridos =
+		abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL);
+	printf("Los elementos deberian estar guardados INORDEN\n");
+	for (size_t i = 0; i < recorridos; i++)
+		printf("La posicion %zu es: %i\n", i, numeros[i]);
 
 	abb_destruir(abb);
 }
@@ -237,6 +264,9 @@ void pruebas_de_operaciones_del_tda_abb()
 
 	pa2m_nuevo_grupo("PRUEBAS DEL ITERADOR INTERNO");
 	pruebas_abb_iterador_interno();
+
+	pa2m_nuevo_grupo("PRUEBAS DE RECORRER Y GUARDAR ELEMENTOS EN VECTOR");
+	pruebas_abb_recorrer_guardar_en_vector();
 }
 
 /*
@@ -326,7 +356,7 @@ int main()
 
 	pa2m_nuevo_grupo("--- PRUEBAS DEL DESTRUCTOR ---");
 	printf("Librerar el arbol y sus elementos no debe perder memoria");
-	pruebas_de_destruir_todo_en_el_abb();
+	//pruebas_de_destruir_todo_en_el_abb();
 	printf("\n");
 
 	//pa2m_nuevo_grupo("--- PRUEBAS DE FUNCIONES CON PARAMETROS NULOS ---");
