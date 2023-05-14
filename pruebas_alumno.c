@@ -188,7 +188,6 @@ void pruebas_buscar_elementos_por_comparacion()
 		     "No se pueden encontrar elementos en una arbol vacio");
 
 	int numeros[] = { 5, 3, 1, 7, 4, 7, 6 };
-	//int vec_buscar[] = { 5, 3, 1, 7, 4, 7, 6 };
 
 	size_t i;
 	for (i = 0; i < sizeof(numeros) / sizeof(int); i++)
@@ -228,9 +227,9 @@ void pruebas_abb_iterador_interno()
 
 	recorridos = abb_con_cada_elemento(abb, POSTORDEN, leer_elemento, NULL);
 	printf("\n");
-	pa2m_afirmar(recorridos == abb_tamanio(abb),
-		     "Se pueden leer los elementos iterados de forma postorden");
-
+	pa2m_afirmar(
+		recorridos == abb_tamanio(abb),
+		"Se pueden leer los elementos iterados de forma postorden");
 
 	printf("\nQuito la raiz del arbol y vuelvo a iterar\n");
 	abb_quitar(abb, raiz);
@@ -261,20 +260,21 @@ void pruebas_abb_recorrer_guardar_en_vector()
 
 	pa2m_afirmar(!abb_recorrer(abb, INORDEN, (void **)elementos, 0),
 		     "No se puede recorrer un arbol vacio");
-	
+
 	abb_crear_e_insertar_cosas(abb);
 
 	pa2m_afirmar(!abb_recorrer(abb, INORDEN, (void **)elementos, 0),
 		     "No se pueden guardar elementos en vectores sin espacio");
 
-
-	size_t recorridos = abb_recorrer(abb, INORDEN, (void **)elementos, TAMANIO_ARRAY);
+	size_t recorridos =
+		abb_recorrer(abb, INORDEN, (void **)elementos, TAMANIO_ARRAY);
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "El vector guarda los elementos ascendentemente");
 
 	recorrer_y_leer_vector_de_cosas(elementos, recorridos);
 
-	recorridos = abb_recorrer(abb, INORDEN, (void **)elementos, TAMANIO_ARRAY / 2);
+	recorridos = abb_recorrer(abb, INORDEN, (void **)elementos,
+				  TAMANIO_ARRAY / 2);
 	pa2m_afirmar(recorridos == TAMANIO_ARRAY / 2,
 		     "El vector guarda los elementos que puede hasta llenarse");
 
@@ -286,16 +286,16 @@ void pruebas_abb_recorrer_guardar_en_vector()
 void pruebas_de_operaciones_del_tda_abb()
 {
 	pa2m_nuevo_grupo("PRUEBAS DE CREACION Y DESTRUCCION");
-	//pruebas_de_creacion_y_destruccion_del_abb();
+	pruebas_de_creacion_y_destruccion_del_abb();
 
 	pa2m_nuevo_grupo("PRUEBAS DE INSERTAR ELEMENTOS Y DESTRUIR ARBOL");
-	//pruebas_insertar_y_destruir();
+	pruebas_insertar_y_destruir();
 
 	pa2m_nuevo_grupo("PRUEBAS DE QUITAR Y DESTRUIR ELEMENTOS");
-	//pruebas_quitar_y_destruir();
+	pruebas_quitar_y_destruir();
 
 	pa2m_nuevo_grupo("PRUEBAS DE BUSCAR ELEMENTOS POR CONDICION");
-	//pruebas_buscar_elementos_por_comparacion();
+	pruebas_buscar_elementos_por_comparacion();
 
 	pa2m_nuevo_grupo("PRUEBAS DEL ITERADOR INTERNO");
 	pruebas_abb_iterador_interno();
@@ -328,7 +328,6 @@ void pruebas_de_destruir_todo_en_el_abb()
 	abb_insertar(abb, c3);
 
 	abb_destruir_todo(abb, destructor_de_cosas);
-	printf("Destruir abb con exito no debe perder memoria\n");
 }
 
 /*
@@ -339,9 +338,7 @@ void pruebas_del_tda_abb_con_parametros_nulos()
 {
 	abb_t *abb = abb_crear(comparador_enteros);
 
-	size_t tamanio_array = 10;
-	void *array[tamanio_array];
-
+	void *array[TAMANIO_ARRAY];
 	char a = 'a';
 
 	pa2m_afirmar(!abb_crear(NULL),
@@ -368,10 +365,10 @@ void pruebas_del_tda_abb_con_parametros_nulos()
 	pa2m_afirmar(!abb_con_cada_elemento(abb, INORDEN, NULL, NULL),
 		     "Iterar un arbol con una funcion que no existe da error");
 
-	pa2m_afirmar(!abb_recorrer(NULL, INORDEN, array, tamanio_array),
+	pa2m_afirmar(!abb_recorrer(NULL, INORDEN, array, TAMANIO_ARRAY),
 		     "Recorrer un arbol que no existe da error");
 
-	pa2m_afirmar(!abb_recorrer(abb, INORDEN, NULL, tamanio_array),
+	pa2m_afirmar(!abb_recorrer(abb, INORDEN, NULL, TAMANIO_ARRAY),
 		     "Guardar elementos en un vector que no existe da error");
 
 	abb_destruir(abb);
@@ -391,11 +388,11 @@ int main()
 
 	pa2m_nuevo_grupo("--- PRUEBAS DEL DESTRUCTOR ---");
 	printf("Librerar el arbol y sus elementos no debe perder memoria");
-	//pruebas_de_destruir_todo_en_el_abb();
+	pruebas_de_destruir_todo_en_el_abb();
 	printf("\n");
 
-	//pa2m_nuevo_grupo("--- PRUEBAS DE FUNCIONES CON PARAMETROS NULOS ---");
-	//pruebas_del_tda_abb_con_parametros_nulos();
+	pa2m_nuevo_grupo("--- PRUEBAS DE FUNCIONES CON PARAMETROS NULOS ---");
+	pruebas_del_tda_abb_con_parametros_nulos();
 
 	return pa2m_mostrar_reporte();
 }
