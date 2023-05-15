@@ -95,6 +95,18 @@ make valgrind-chanutron
     descendentemente. En este caso, las operaciones de insertar, buscar y quitar pasarían a tener una 
     complejidad O(n), ya que en el peor de los casos, para las tres operaciones se necesitaría recorrer todos 
     los nodos.
+    A diferencia del ABB, los árboles N-Arios, incluidos los árboles binarios, tienen otra complejidad 
+    algorítmica para sus operaciones, debido a que no tienen la función comparador.
+    Tanto para insertar, buscar y quitar, en el peor de los casos es necesario recorrer todos elementos del 
+    árbol, de forma que la complejidad de las tres operaciones es O(n).
+    Las operaciones de crear, tamaño, y árbol vacío no cambian, ya que son independientes de si el árbol es 
+    N-Ario, binario, o un ABB.
+    Si bien para iterar el árbol, y por ende también para recorrer y llenar el vector, no se van a poder 
+    utilizar los mismos recorridos (para los árboles N-Arios), estas operaciones también requieren recorrer 
+    todos los nodos del árbol por lo que siguen siendo O(n), al igual que destruir el árbol.
+    Explicado cómo afecta la ausencia de una función comparador, se puede observar que la complejidad de las 
+    operaciones que cambian, tanto para árboles binarios como N-Arios, son las de insertar, buscar y quitar, lo 
+    cual tiene sentido ya que son las funciones que utilizan directamente el comparador.
 
 -   Explique su implementación y decisiones de diseño
     Para implementar el ABB, es necesario tomar algunas convenciones particulares de cada implementación. 
