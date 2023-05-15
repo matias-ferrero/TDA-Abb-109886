@@ -87,10 +87,10 @@ nodo_abb_t *abb_quitar_nodo(abb_t *arbol, nodo_abb_t *nodo, void *elemento,
 		arbol->tamanio--;
 
 		if (nodo->derecha != NULL && nodo->izquierda != NULL) {
-			void *elemento_derecho = NULL;
+			void *predecesor_inorden = NULL;
 			nodo->izquierda = extraer_predecesor_inorden(
-				nodo->izquierda, &elemento_derecho);
-			nodo->elemento = elemento_derecho;
+				nodo->izquierda, &predecesor_inorden);
+			nodo->elemento = predecesor_inorden;
 			return nodo;
 		}
 
