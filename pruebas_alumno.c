@@ -15,11 +15,11 @@ typedef struct {
 	char *nombre;
 } pkm_para_destruir_t;
 
-typedef struct cosa {
+typedef struct elemento {
 	int clave;
 	char contenido[TAMANIO_ARRAY];
-	void *elemento;
-} cosa;
+	void *contexto;
+} elemento;
 
 int comparador_enteros(void *elemento1, void *elemento2)
 {
@@ -29,23 +29,23 @@ int comparador_enteros(void *elemento1, void *elemento2)
 	return (int)(numero1 - numero2);
 }
 
-cosa *crear_cosa(int clave)
+elemento *crear_elemento(int clave)
 {
-	cosa *c = (cosa *)malloc(sizeof(cosa));
+	elemento *c = (elemento *)malloc(sizeof(elemento));
 	if (c)
 		c->clave = clave;
 	return c;
 }
 
-cosa *abb_crear_e_insertar_cosas(abb_t *abb)
+elemento *abb_crear_e_insertar_elementos(abb_t *abb)
 {
-	cosa *c1 = crear_cosa(1);
-	cosa *c2 = crear_cosa(2);
-	cosa *c5 = crear_cosa(5);
-	cosa *c6 = crear_cosa(6);
-	cosa *c7 = crear_cosa(7);
-	cosa *c7_repetido = crear_cosa(7);
-	cosa *c9 = crear_cosa(9);
+	elemento *c1 = crear_elemento(1);
+	elemento *c2 = crear_elemento(2);
+	elemento *c5 = crear_elemento(5);
+	elemento *c6 = crear_elemento(6);
+	elemento *c7 = crear_elemento(7);
+	elemento *c7_repetido = crear_elemento(7);
+	elemento *c9 = crear_elemento(9);
 
 	abb_insertar(abb, c5);
 	abb_insertar(abb, c1);
@@ -58,53 +58,53 @@ cosa *abb_crear_e_insertar_cosas(abb_t *abb)
 	return c5;
 }
 
-int comparar_cosas(void *c1, void *c2)
+int comparar_elementos(void *c1, void *c2)
 {
-	cosa *cosa1 = c1;
-	cosa *cosa2 = c2;
-	return cosa1->clave - cosa2->clave;
+	elemento *elemento1 = c1;
+	elemento *elemento2 = c2;
+	return elemento1->clave - elemento2->clave;
 }
 
-bool leer_elemento(void *elemento, void *extra)
+bool leer_elemento(void *contexto, void *extra)
 {
 	extra = extra;
-	int *numero1 = elemento;
-	if (elemento)
+	int *numero1 = contexto;
+	if (contexto)
 		printf("%i ", *numero1);
 	return true;
 }
 
-void recorrer_y_leer_vector_de_cosas(cosa **vector, size_t recorridos)
+void recorrer_y_leer_vector_de_elementos(elemento **vector, size_t recorridos)
 {
 	for (size_t i = 0; i < recorridos; i++)
 		printf("%i ", vector[i]->clave);
 	printf("\n");
 }
 
-bool leer_hasta_7(void *elemento, void *extra)
+bool leer_hasta_7(void *contexto, void *extra)
 {
 	extra = extra;
-	if (elemento) {
-		printf("%i ", ((cosa *)elemento)->clave);
-		if (((cosa *)elemento)->clave == 7)
+	if (contexto) {
+		printf("%i ", ((elemento *)contexto)->clave);
+		if (((elemento *)contexto)->clave == 7)
 			return false;
 	}
 	return true;
 }
 
-void destruir_cosa(cosa *c)
+void destruir_elemento(elemento *c)
 {
 	free(c);
 }
 
-void destructor_de_cosas(void *c)
+void destructor_de_elementos(void *c)
 {
-	cosa *cosa = c;
-	if (!cosa)
+	elemento *elemento = c;
+	if (!elemento)
 		return;
 
-	free(cosa->elemento);
-	destruir_cosa(c);
+	free(elemento->contexto);
+	destruir_elemento(c);
 }
 
 void pruebas_de_creacion_y_destruccion_del_abb()
@@ -206,12 +206,12 @@ void pruebas_buscar_elementos_por_comparacion()
 
 void pruebas_abb_iterador_interno()
 {
-	abb_t *abb = abb_crear(comparar_cosas);
+	abb_t *abb = abb_crear(comparar_elementos);
 
 	pa2m_afirmar(!abb_con_cada_elemento(abb, INORDEN, leer_elemento, NULL),
 		     "No se pueden leer elementos en un arbol vacio");
 
-	cosa *raiz = abb_crear_e_insertar_cosas(abb);
+	elemento *raiz = abb_crear_e_insertar_elementos(abb);
 
 	size_t recorridos;
 
@@ -233,7 +233,7 @@ void pruebas_abb_iterador_interno()
 
 	printf("\nQuito la raiz del arbol y vuelvo a iterar\n");
 	abb_quitar(abb, raiz);
-	destruir_cosa(raiz);
+	destruir_elemento(raiz);
 
 	recorridos = abb_con_cada_elemento(abb, INORDEN, leer_hasta_7, NULL);
 	printf("\n");
@@ -254,14 +254,14 @@ void pruebas_abb_iterador_interno()
 
 void pruebas_abb_recorrer_guardar_en_vector()
 {
-	abb_t *abb = abb_crear(comparar_cosas);
+	abb_t *abb = abb_crear(comparar_elementos);
 
-	cosa *elementos[TAMANIO_ARRAY];
+	elemento *elementos[TAMANIO_ARRAY];
 
 	pa2m_afirmar(!abb_recorrer(abb, INORDEN, (void **)elementos, 0),
 		     "No se puede recorrer un arbol vacio");
 
-	abb_crear_e_insertar_cosas(abb);
+	abb_crear_e_insertar_elementos(abb);
 
 	pa2m_afirmar(!abb_recorrer(abb, INORDEN, (void **)elementos, 0),
 		     "No se pueden guardar elementos en vectores sin espacio");
@@ -271,14 +271,14 @@ void pruebas_abb_recorrer_guardar_en_vector()
 	pa2m_afirmar(recorridos == abb_tamanio(abb),
 		     "El vector guarda los elementos ascendentemente");
 
-	recorrer_y_leer_vector_de_cosas(elementos, recorridos);
+	recorrer_y_leer_vector_de_elementos(elementos, recorridos);
 
 	recorridos = abb_recorrer(abb, INORDEN, (void **)elementos,
 				  TAMANIO_ARRAY / 2);
 	pa2m_afirmar(recorridos == TAMANIO_ARRAY / 2,
 		     "El vector guarda los elementos que puede hasta llenarse");
 
-	recorrer_y_leer_vector_de_cosas(elementos, recorridos);
+	recorrer_y_leer_vector_de_elementos(elementos, recorridos);
 
 	abb_destruir_todo(abb, free);
 }
@@ -310,24 +310,24 @@ void pruebas_de_operaciones_del_tda_abb()
 
 void pruebas_de_destruir_todo_en_el_abb()
 {
-	abb_t *abb = abb_crear(comparar_cosas);
+	abb_t *abb = abb_crear(comparar_elementos);
 
-	cosa *c1 = crear_cosa(1);
-	cosa *c2 = crear_cosa(2);
-	cosa *c3 = crear_cosa(3);
-	cosa *c4 = crear_cosa(4);
+	elemento *c1 = crear_elemento(1);
+	elemento *c2 = crear_elemento(2);
+	elemento *c3 = crear_elemento(3);
+	elemento *c4 = crear_elemento(4);
 
-	c1->elemento = malloc(sizeof(int));
-	c2->elemento = malloc(sizeof(float));
-	c3->elemento = malloc(sizeof(char));
-	c4->elemento = malloc(sizeof(pkm_para_destruir_t));
+	c1->contexto = malloc(sizeof(int));
+	c2->contexto = malloc(sizeof(float));
+	c3->contexto = malloc(sizeof(char));
+	c4->contexto = malloc(sizeof(pkm_para_destruir_t));
 
 	abb_insertar(abb, c4);
 	abb_insertar(abb, c2);
 	abb_insertar(abb, c1);
 	abb_insertar(abb, c3);
 
-	abb_destruir_todo(abb, destructor_de_cosas);
+	abb_destruir_todo(abb, destructor_de_elementos);
 }
 
 /*
